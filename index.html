@@ -178,35 +178,73 @@ body{user-select:none;-webkit-user-select:none}
   text-wrap:balance;
 }
 
-.chapters{
+/* Rundenlaenge: fuenf Kacheln, auf dem iPad nebeneinander,
+   am Telefon als Liste untereinander. */
+.lengths{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:9px;
+}
+.len{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  font-family:inherit;
+  color:var(--cream);
+  background:var(--panel-hi);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-m);
+  padding:14px 8px 12px;
+  min-height:84px;
+  cursor:pointer;
+  transition:border-color .18s ease, background .18s ease, transform .1s ease;
+}
+.len:hover{border-color:var(--gilt)}
+.len:active{transform:scale(.98)}
+.len .n{
+  font-family:"Eczar",Georgia,serif;
+  font-weight:700;
+  font-size:27px;
+  line-height:1.05;
+  color:var(--gilt);
+  font-variant-numeric:tabular-nums;
+  transition:color .18s ease;
+}
+.len .lb{
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--cream-faint);
+  text-align:center;
+  line-height:1.25;
+  transition:color .18s ease;
+}
+.len[aria-pressed="true"]{
+  background:var(--gilt);
+  border-color:var(--gilt);
+}
+.len[aria-pressed="true"] .n{color:var(--ground-deep)}
+.len[aria-pressed="true"] .lb{color:#5A2E06}
+
+/* Kapitel-Legende: erklaert die Farben der Fortschrittsleiste */
+.legend{
   list-style:none;
   margin:0;
   padding:0;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-.chapter{
   display:flex;
-  align-items:baseline;
-  gap:10px;
-  padding:12px 14px;
-  border-radius:var(--r-m);
-  background:#ffffff0a;
-  border:1px solid #ffffff12;
+  flex-wrap:wrap;
+  gap:7px 18px;
+  font-size:13.5px;
+  color:var(--cream-dim);
 }
-.chapter .dot{
-  width:9px;height:9px;border-radius:50%;
+.legend li{display:flex;align-items:center;gap:7px}
+.legend .dot{
+  width:8px;height:8px;border-radius:50%;
   background:var(--c);
   flex:none;
-  transform:translateY(-1px);
 }
-.chapter .nm{font-weight:500;font-size:15.5px;flex:1;min-width:0}
-.chapter .ct{
-  font-size:13px;
-  color:var(--cream-faint);
-  font-variant-numeric:tabular-nums;
-}
+.legend .ct{color:var(--cream-faint);font-variant-numeric:tabular-nums}
 
 /* --- Buttons --- */
 .btn{
@@ -450,8 +488,19 @@ body{user-select:none;-webkit-user-select:none}
   transition:width .7s cubic-bezier(.2,.7,.3,1);
 }
 
+@media (max-width:560px){
+  .lengths{grid-template-columns:1fr}
+  .len{
+    flex-direction:row;
+    justify-content:flex-start;
+    gap:14px;
+    min-height:62px;
+    padding:12px 16px;
+  }
+  .len .n{width:44px;text-align:center;flex:none}
+  .len .lb{text-align:left}
+}
 @media (max-width:520px){
-  .chapters{grid-template-columns:1fr}
   .card-body{padding:20px 18px 22px}
   .opt{font-size:17.5px;padding:14px 15px;min-height:60px}
   .foot{flex-direction:column}
@@ -485,7 +534,7 @@ body{user-select:none;-webkit-user-select:none}
       </svg>
       <p class="eyebrow">Königreich Bhutan · འབྲུག་ཡུལ་</p>
       <h1 class="title">Druk Yul<em>Das Quiz</em></h1>
-      <p class="lede">26 Fragen über das Land des Donnerdrachens — über Schule, Berge, Könige, Klöster und sehr viel Chili.</p>
+      <p class="lede">Fragen über das Land des Donnerdrachens — über Schule, Berge, Könige, Klöster und sehr viel Chili.</p>
     </div>
 
     <div class="card">
@@ -500,13 +549,14 @@ body{user-select:none;-webkit-user-select:none}
         </g>
       </svg>
       <div class="card-body">
-        <p class="eyebrow eyebrow-dim">Vier Kapitel</p>
-        <ul class="chapters" id="chapters"></ul>
+        <p class="eyebrow eyebrow-dim">Wie lang soll die Runde sein?</p>
+        <div class="lengths" id="lengths" role="group" aria-label="Anzahl der Fragen"></div>
+        <ul class="legend" id="chapters"></ul>
         <button class="btn btn-wide" id="btn-start" type="button">Quiz starten</button>
       </div>
     </div>
 
-    <p class="hint">Tippe eine Antwort an — du siehst sofort, ob sie stimmt, und erfährst etwas dazu.<br>Für den Stand: Safari → Teilen → „Zum Home-Bildschirm“ startet die Seite im Vollbild.</p>
+    <p class="hint">Die Fragen werden bei jeder Runde neu gezogen — quer durch alle vier Kapitel.<br>Für den Stand: Safari → Teilen → „Zum Home-Bildschirm“ startet die Seite im Vollbild.</p>
   </section>
 
   <!-- ===================== QUIZ ===================== -->
@@ -514,7 +564,7 @@ body{user-select:none;-webkit-user-select:none}
     <div class="hud">
       <div class="rail" id="rail" role="img" aria-label="Fortschritt"></div>
       <div class="hud-row">
-        <span id="hud-where">Frage 1 von 26 · <b>Schule</b></span>
+        <span id="hud-where">Frage 1 · <b>Schule</b></span>
         <span class="score" id="hud-score">0 <i>richtig</i></span>
       </div>
     </div>
@@ -562,7 +612,8 @@ body{user-select:none;-webkit-user-select:none}
         </div>
         <div class="tally" id="r-tally"></div>
         <div class="foot">
-          <button class="btn btn-wide" id="btn-again" type="button">Noch einmal spielen</button>
+          <button class="btn" id="btn-again" type="button">Noch einmal</button>
+          <button class="btn btn-ghost" id="btn-pick" type="button">Andere Länge wählen</button>
         </div>
       </div>
     </div>
@@ -677,11 +728,22 @@ body{user-select:none;-webkit-user-select:none}
     { min:0,   t:"Neu in Druk Yul",                s:"Willkommen. Am Stand nebenan erfährst du mehr — dann noch einmal probieren." }
   ];
 
+  /* Waehlbare Rundenlaengen. n:0 heisst "alle Fragen". */
+  var LENGTHS = [
+    { n:3,  lb:"Im Vorbeigehen" },
+    { n:5,  lb:"Kurzer Halt" },
+    { n:10, lb:"Tagesetappe" },
+    { n:15, lb:"Lange Runde" },
+    { n:0,  lb:"Der ganze Weg" }
+  ];
+  var DEFAULT_LEN = 10;
+
   var IDLE_MS = 90000;
 
   /* ---------------- Zustand ---------------- */
   var order = [], idx = 0, results = [], picks = [], locked = false, shuffled = [];
   var idleTimer = null;
+  var roundLen = DEFAULT_LEN;
 
   var $ = function(id){ return document.getElementById(id); };
   var screens = { start:$("screen-start"), quiz:$("screen-quiz"), result:$("screen-result") };
@@ -706,13 +768,66 @@ body{user-select:none;-webkit-user-select:none}
     for(i = 0; i < QUESTIONS.length; i++){ counts[QUESTIONS[i].s]++; }
     var html = "";
     for(i = 0; i < SECTIONS.length; i++){
-      html += '<li class="chapter" style="--c:' + SECTIONS[i].color + '">' +
+      html += '<li style="--c:' + SECTIONS[i].color + '">' +
                 '<span class="dot"></span>' +
-                '<span class="nm">' + SECTIONS[i].name + '</span>' +
-                '<span class="ct">' + counts[i] + '</span>' +
+                SECTIONS[i].name +
+                ' <span class="ct">' + counts[i] + '</span>' +
               '</li>';
     }
     $("chapters").innerHTML = html;
+  }
+
+  function buildLengths(){
+    var box = $("lengths"), i;
+    box.innerHTML = "";
+    for(i = 0; i < LENGTHS.length; i++){
+      var n = LENGTHS[i].n || QUESTIONS.length;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "len";
+      b.id = "len-" + n;
+      b.setAttribute("data-n", String(n));
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<span class="n">' + n + '</span><span class="lb"></span>';
+      b.querySelector(".lb").textContent = LENGTHS[i].lb;
+      b.addEventListener("click", function(ev){
+        setLength(Number(ev.currentTarget.getAttribute("data-n")));
+      });
+      box.appendChild(b);
+    }
+    setLength(roundLen);
+  }
+
+  function setLength(n){
+    roundLen = Math.min(n, QUESTIONS.length);
+    var tiles = $("lengths").children, i;
+    for(i = 0; i < tiles.length; i++){
+      tiles[i].setAttribute("aria-pressed",
+        Number(tiles[i].getAttribute("data-n")) === roundLen ? "true" : "false");
+    }
+    $("btn-start").textContent = roundLen + " Fragen starten";
+  }
+
+  /* Zieht n Fragen zufaellig, aber reihum aus den vier Kapiteln — sonst
+     bestuende eine kurze Runde leicht nur aus Essensfragen. Danach wird
+     die Reihenfolge selbst noch einmal gemischt. */
+  function drawOrder(n){
+    var pools = [], i, s;
+    for(i = 0; i < SECTIONS.length; i++){ pools.push([]); }
+    for(i = 0; i < QUESTIONS.length; i++){ pools[QUESTIONS[i].s].push(i); }
+    for(i = 0; i < pools.length; i++){ pools[i] = shuffle(pools[i]); }
+
+    var picked = [], guard = 0;
+    while(picked.length < n && guard++ < 500){
+      var live = [];
+      for(i = 0; i < pools.length; i++){ if(pools[i].length){ live.push(i); } }
+      if(!live.length){ break; }
+      live = shuffle(live);
+      for(i = 0; i < live.length && picked.length < n; i++){
+        picked.push(pools[live[i]].pop());
+      }
+    }
+    return shuffle(picked);
   }
 
   /* ---------------- Fortschrittsleiste ---------------- */
@@ -749,7 +864,7 @@ body{user-select:none;-webkit-user-select:none}
     card.classList.add("q-anim");
 
     $("hud-where").innerHTML = "Frage " + (idx + 1) + " von " + order.length +
-      ' · <b style="--sc:' + sec.color + '">' + sec.name + "</b>";
+      ' · <b>' + sec.name + "</b>";
     $("hud-where").style.setProperty("--sc", sec.color);
     $("hud-score").innerHTML = score() + " <i>richtig</i>";
     paintRail();
@@ -887,7 +1002,8 @@ body{user-select:none;-webkit-user-select:none}
     }
     var html = "";
     for(i = 0; i < SECTIONS.length; i++){
-      var w = tot[i] ? Math.round(hit[i] / tot[i] * 100) : 0;
+      if(!tot[i]){ continue; }   /* Kapitel kam in dieser Runde nicht vor */
+      var w = Math.round(hit[i] / tot[i] * 100);
       html += '<div class="tally-row" style="--c:' + SECTIONS[i].color + ';--w:' + w + '%">' +
                 '<span class="nm">' + SECTIONS[i].name + "</span>" +
                 '<span class="val">' + hit[i] + " / " + tot[i] + "</span>" +
@@ -901,8 +1017,7 @@ body{user-select:none;-webkit-user-select:none}
 
   /* ---------------- Ablauf ---------------- */
   function startQuiz(){
-    order = [];
-    for(var i = 0; i < QUESTIONS.length; i++){ order.push(i); }
+    order = drawOrder(roundLen);
     idx = 0;
     results = [];
     buildRail();
@@ -916,6 +1031,7 @@ body{user-select:none;-webkit-user-select:none}
 
   $("btn-start").addEventListener("click", startQuiz);
   $("btn-again").addEventListener("click", startQuiz);
+  $("btn-pick").addEventListener("click", toStart);
 
   /* Tastatur (falls am Stand eine Tastatur haengt) */
   document.addEventListener("keydown", function(e){
@@ -957,6 +1073,7 @@ body{user-select:none;-webkit-user-select:none}
   }, { passive:false });
 
   buildChapters();
+  buildLengths();
   resetIdle();
 })();
 </script>
