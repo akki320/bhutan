@@ -41,18 +41,49 @@ einstellen lässt.
 
 ## Gestaltung
 
-Die Farben stammen vom **Kemar-Band**, dem ockerroten Streifen mit
-Messingscheiben, der an jeder Dzong-Mauer umläuft — er bildet den
-Seitenhintergrund und die Oberkante jeder Karte. Die vier Kapitel tragen vier
-der fünf **Gebetsfahnen-Farben** (Wasser, Himmel, Luft, Erde); die fünfte,
-das Feuerrot, ist der Grund der Seite. Das Ergebnis wird als
-**Bruttonationalglück** ausgegeben, Bhutans eigenem Wohlstandsmaß.
+Bildwelt ist die **Dämmerung über dem Himalaya**: Indigo-Nacht oben, das
+Ochsenblutrot des **Kemar-Bands** in der Mitte — jener ockerrote Streifen mit
+Messingscheiben, der an jeder Dzong-Mauer umläuft und hier die Oberkante jeder
+Karte bildet — und Glut am Horizont hinter drei Bergketten.
+
+Der Fortschritt ist eine **Gebetsfahnen-Kette**: eine durchhängende Schnur mit
+einer Fahne je Frage, gefärbt nach Kapitel. Beantwortete Fragen stehen in
+voller Farbe, falsche verblassen ins Dunkle, die laufende trägt einen
+Messingrand. Am Ende bleibt die Kette als Verlauf der Runde stehen. Die
+Fahnen hängen an einer quadratischen Bézierkurve; für sie gilt `x = u·W` und
+`y = top + 4·sag·u·(1−u)`, sodass jede Fahne senkrecht zur örtlichen Steigung
+sitzt.
+
+Die vier Kapitel tragen vier der fünf **Gebetsfahnen-Farben** (Wasser, Himmel,
+Luft, Erde); die fünfte, das Feuerrot, ist der Grund der Seite. Die Palette
+ist gegen den dunklen Grund auf Farbfehlsichtigkeit geprüft (schlechtestes
+Paar ΔE 10,0; bei normalem Sehen 21,3) — und weil die weiße Fahne für Luft
+fast neutral ist, trägt jedes Kapitel zusätzlich seinen Namen. Farbe allein
+muss nie reichen.
+
+Das Ergebnis erscheint als **Bruttonationalglück**, Bhutans eigenem
+Wohlstandsmaß, als Ring um das Dharma-Rad, dazu eine Auswertung je Kapitel.
 
 Schriften: *Eczar* für Überschriften und *Mukta* für den Fließtext — beide
 sind Devanagari-Latein-Familien aus der Region.
 
 Bewusst einfarbig gestaltet (kein Hell/Dunkel-Wechsel): Das Display am Stand
 soll unabhängig von der iPad-Einstellung immer gleich aussehen.
+
+## Tablet und Touch
+
+Ausgelegt auf ein **11-Zoll-Tablet** (1194 × 834 quer, 834 × 1194 hoch).
+
+Ab 880 px Breite teilt sich die Karte in **zwei Spalten**: links Kapitel,
+Frage und Erklärung, rechts die Antworten und der Weiter-Knopf. Dadurch passt
+jeder Schirm in beiden Ausrichtungen ohne Scrollen, die Antworten bleiben
+unter dem Daumen, und sie springen nicht, wenn nach dem Antippen die
+Erklärung erscheint — der Platz für den Knopf ist fest reserviert. Darunter
+stapelt sich alles zu einer Spalte.
+
+Tippflächen sind mindestens 60 px hoch, nichts hängt an `:hover`,
+Doppeltipp-Zoom und Textmarkierung sind abgeschaltet, und die Seitenränder
+berücksichtigen `env(safe-area-inset-*)`.
 
 ## Betrieb am Stand
 

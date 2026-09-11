@@ -4,52 +4,70 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Eczar:wght@500;600;700;800&family=Mukta:wght@300;400;500;600;700&display=swap">
 
 <style>
-/* ------------------------------------------------------------------
-   Druk Yul Quiz — Infostand-Kiosk
-   Bewusst einfarbige Gestaltung (kein Light/Dark-Wechsel): das Display
-   am Stand soll unabhaengig von der iPad-Einstellung immer gleich
-   aussehen. Darum sind alle Farben explizit gesetzt.
-   Palette: Kemar-Band eines Dzong (Ochsenblutrot + Messing),
-   Sektionsfarben = vier der fuenf Gebetsfahnen-Elemente.
-   ------------------------------------------------------------------ */
+/* ==================================================================
+   Druk Yul — Das Quiz · Infostand-Kiosk
+   Ausgelegt auf ein 11"-Tablet (1194x834 quer, 834x1194 hoch).
+
+   Bewusst einfarbig — kein Hell/Dunkel-Wechsel: das Display am Stand
+   soll unabhaengig von der iPad-Einstellung immer gleich aussehen.
+   Darum ist jede Farbe explizit gesetzt.
+
+   Bildwelt: Daemmerung ueber dem Himalaya. Indigo-Nacht oben, das
+   Ochsenblutrot des Kemar-Bands (der Streifen mit Messingscheiben an
+   jeder Dzong-Mauer) in der Mitte, Glut am Horizont hinter drei
+   Bergketten. Die Kapitelfarben sind vier der fuenf Gebetsfahnen-
+   Elemente; die fuenfte, das Feuerrot, ist der Grund selbst.
+   ================================================================== */
 :root{
-  --ground:#3A1512;
-  --ground-deep:#25090A;
-  --ground-glow:#5C2418;
-  --panel:#4A1D18;
-  --panel-hi:#5A2721;
-  --line:#7A3A2B;
+  /* Himmel */
+  --night:#180E2A;
+  --dusk:#2E1226;
+  --mid:#4A1A14;
+  --ember:#8A3A18;
 
-  --cream:#F6E9D2;
-  --cream-dim:#CDB396;
-  --cream-faint:#9C7B65;
+  /* Flaechen */
+  --panel:#54211A;
+  --panel-hi:#63291F;
+  --panel-sunk:#3A1310;
+  --line:#8A4630;
+  --line-soft:#ffffff22;
 
-  --gilt:#E8B23C;
-  --gilt-bright:#FFD520;
-  --saffron:#F07A2B;
+  /* Schrift */
+  --cream:#F8EEDC;
+  --cream-dim:#D6BFA3;
+  --cream-faint:#A2836C;
 
-  --jade:#4FA37C;
-  --jade-deep:#20563F;
-  --ash:#8A6B5E;
-  --ash-deep:#301512;
+  /* Messing */
+  --gilt:#F0C75A;
+  --gilt-bright:#FFDC86;
+  --gilt-deep:#7A5410;
 
-  --pf-green:#4FA37C;
-  --pf-blue:#6BAAD4;
-  --pf-bone:#E4D9C6;
-  --pf-gold:#E8B23C;
+  /* Zustaende */
+  --jade:#3FCE8C;
+  --jade-sunk:#1E5340;
+  --ash:#9A7B6C;
+  --ash-sunk:#301714;
+  --flame:#F5883A;
 
-  --r-s:8px;
-  --r-m:14px;
-  --r-l:22px;
+  /* Kapitel = Gebetsfahnen (geprueft auf Farbfehlsichtigkeit) */
+  --pf-water:#3FCE8C;
+  --pf-sky:#5B8FE0;
+  --pf-air:#DCE2EC;
+  --pf-earth:#F5A81E;
 
-  --shell:min(860px,100%);
+  --r-s:10px;
+  --r-m:16px;
+  --r-l:26px;
+
+  --shell:min(1120px,100%);
+  --gutter:max(20px,env(safe-area-inset-left));
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:var(--ground);
+  background:var(--mid);
   color:var(--cream);
   font-family:"Mukta","Segoe UI",Helvetica,Arial,sans-serif;
   font-size:17px;
@@ -57,160 +75,393 @@ body{
   -webkit-text-size-adjust:100%;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
   overflow-x:hidden;
 }
 
-/* Kiosk: kein versehentliches Markieren von Text durch Standbesucher */
-body{user-select:none;-webkit-user-select:none}
-
-/* --- Hintergrund: Daemmerung ueber dem Tal + Bergsilhouette --- */
+/* ---------- Hintergrund ---------- */
 .sky{
   position:fixed;
   inset:0;
   z-index:0;
   pointer-events:none;
   background:
-    radial-gradient(115% 62% at 50% -14%, var(--ground-glow) 0%, rgba(92,36,24,0) 62%),
-    linear-gradient(180deg, var(--ground) 0%, var(--ground) 46%, var(--ground-deep) 100%);
+    radial-gradient(88% 46% at 50% 104%, #C4661F 0%, rgba(196,102,31,0) 58%),
+    linear-gradient(178deg,
+      var(--night) 0%,
+      var(--dusk) 26%,
+      var(--mid) 56%,
+      #5E2115 80%,
+      var(--ember) 100%);
 }
-.range{
+.ridges{
   position:fixed;
   left:0; right:0; bottom:0;
   z-index:0;
   width:100%;
+  height:clamp(150px,26vh,260px);
   pointer-events:none;
   display:block;
 }
-.range .far{fill:#33110F}
-.range .near{fill:#25090A}
+.ridges .r3{fill:#5A2418}   /* fern, im Dunst */
+.ridges .r2{fill:#3B1411}
+.ridges .r1{fill:#210A0B}   /* nah */
 
-/* --- Grundgeruest --- */
+/* ---------- Grundgeruest ---------- */
 .kiosk{
   position:relative;
   z-index:1;
   min-height:100dvh;
   display:flex;
   flex-direction:column;
-  align-items:center;
-  gap:20px;
   width:var(--shell);
   margin:0 auto;
-  padding-inline:20px;
-  padding-block:18px 24px;
+  padding-inline:var(--gutter);
+  padding-block:16px max(22px,env(safe-area-inset-bottom));
 }
-
 .screen{
-  width:100%;
   flex:1;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:20px;
+  gap:18px;
+  min-height:0;
 }
 
-/* --- Kemar-Band: der ockerrote Streifen mit Messingscheiben,
-       der an jeder Dzong-Mauer umlaeuft. Hier als Kartenkante. --- */
-.kemar{
-  display:block;
-  width:100%;
-  height:16px;
+/* ---------- Gebetsfahnen-Kette ---------- */
+.bunting-wrap{display:flex;justify-content:center}
+.bunting{display:block;max-width:100%;height:auto}
+@media (prefers-reduced-motion:no-preference){
+  .bunting{animation:breathe 9s ease-in-out infinite}
 }
+@keyframes breathe{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(3px)}
+}
+.bunting .string{
+  fill:none;
+  stroke:#C69A72;
+  stroke-width:1.4;
+  opacity:.55;
+}
+.bunting .fl{transition:opacity .35s ease, fill .35s ease}
 
-/* --- Karte --- */
-.card{
-  background:var(--panel);
+/* ---------- Kopfzeile im Quiz ---------- */
+.topbar{display:flex;flex-direction:column;gap:8px;flex:none}
+.hud{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--cream-faint);
+}
+.hud .score{
+  color:var(--cream);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.12em;
+}
+.hud .score i{font-style:normal;color:var(--cream-faint);font-weight:500}
+
+/* ---------- Karte / Dzong-Fenster ---------- */
+.frame{
+  background:linear-gradient(180deg,#56221B 0%,#4C1C16 100%);
   border:1px solid var(--line);
   border-radius:var(--r-l);
   overflow:hidden;
-  box-shadow:0 22px 50px -28px #12040399, 0 2px 0 #ffffff0d inset;
+  box-shadow:
+    0 30px 60px -34px #0A0206CC,
+    0 1px 0 #ffffff14 inset;
 }
-.card-body{
-  padding:24px 26px 26px;
+/* Kemar-Band: ockerroter Streifen mit Messingscheiben */
+.kemar{display:block;width:100%;height:15px}
+
+/* ---------- Buehne: quer zwei Spalten, hoch gestapelt ---------- */
+.stage{
+  display:grid;
+  grid-template-columns:1fr;
+}
+.pane{
+  position:relative;
+  padding:24px 26px;
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:16px;
+  min-width:0;
+}
+.pane-a{
+  border-top:1px solid var(--line-soft);
+  justify-content:center;
 }
 
-/* --- Startbildschirm --- */
-.wheel{
-  width:78px;
-  height:78px;
-  display:block;
-  margin-inline:auto;
+/* Horzhing — der dreibogige Fensterrahmen eines Dzong, als Wasserzeichen */
+.horzhing{
+  position:absolute;
+  right:-46px;
+  bottom:-52px;
+  width:200px;
+  height:200px;
+  fill:none;
+  stroke:var(--gilt);
+  stroke-width:2.2;
+  opacity:.09;
+  pointer-events:none;
 }
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  align-self:flex-start;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--cream-dim);
+}
+.chip .dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+
+.question{
+  font-family:"Eczar",Georgia,"Times New Roman",serif;
+  font-weight:600;
+  font-size:clamp(26px,3.1vw,35px);
+  line-height:1.18;
+  margin:0;
+  text-wrap:balance;
+}
+.multi-note{
+  margin:0;
+  font-size:15px;
+  font-weight:600;
+  color:var(--gilt);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.multi-note::before{
+  content:"";
+  width:16px;height:16px;
+  border-radius:4px;
+  border:2px solid var(--gilt);
+  flex:none;
+}
+
+/* ---------- Antworten ---------- */
+.options{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  width:100%;
+  text-align:left;
+  font-family:inherit;
+  font-size:19px;
+  font-weight:500;
+  line-height:1.3;
+  color:var(--cream);
+  background:linear-gradient(180deg,var(--panel-hi) 0%,var(--panel) 100%);
+  border:1.5px solid var(--line);
+  border-radius:var(--r-m);
+  padding:15px 18px;
+  min-height:64px;
+  cursor:pointer;
+  transition:border-color .16s ease, background .16s ease,
+             opacity .28s ease, transform .1s ease, box-shadow .16s ease;
+}
+.opt:hover:not(:disabled){border-color:var(--gilt);box-shadow:0 0 0 1px var(--gilt)}
+.opt:active:not(:disabled){transform:scale(.988)}
+.opt:disabled{cursor:default}
+.opt .key{
+  flex:none;
+  width:36px;height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:15px;
+  font-weight:700;
+  line-height:1;
+  color:var(--gilt);
+  background:#00000038;
+  border:1.5px solid var(--line);
+  transition:inherit;
+}
+.opt .lbl{flex:1;min-width:0}
+
+.opt[data-pick="on"]{border-color:var(--gilt);box-shadow:0 0 0 1px var(--gilt)}
+.opt[data-pick="on"] .key{background:var(--gilt);color:#3A2606;border-color:var(--gilt)}
+
+.opt[data-mark] .key{font-size:19px}
+.opt[data-mark="right"]{
+  border-color:var(--jade);
+  background:linear-gradient(180deg,#2E6B51 0%,#245442 100%);
+}
+.opt[data-mark="right"] .key{background:var(--jade);border-color:var(--jade);color:#0B2A1D}
+.opt[data-mark="shown"]{border-color:var(--jade);background:var(--panel-sunk)}
+.opt[data-mark="shown"] .key{border-color:var(--jade);color:var(--jade);background:transparent}
+.opt[data-mark="wrong"]{border-color:var(--ash);background:var(--ash-sunk);color:var(--cream-dim)}
+.opt[data-mark="wrong"] .key{border-color:var(--ash);color:var(--ash);background:transparent}
+.opt[data-mark="off"]{opacity:.34}
+
+/* ---------- Rueckmeldung ---------- */
+.verdict{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:15px 17px;
+  border-radius:var(--r-m);
+  background:#00000036;
+  border-left:3px solid var(--v);
+  animation:rise .3s cubic-bezier(.2,.7,.3,1) both;
+}
+.verdict .head{
+  font-family:"Eczar",Georgia,serif;
+  font-weight:600;
+  font-size:20px;
+  line-height:1.1;
+  color:var(--v);
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.verdict .head .ic{
+  width:23px;height:23px;
+  border-radius:50%;
+  background:var(--v);
+  color:#20100A;
+  display:grid;place-items:center;
+  font-size:14px;
+  font-family:"Mukta",sans-serif;
+  font-weight:700;
+  flex:none;
+}
+.verdict .fact{
+  margin:0;
+  font-size:16.5px;
+  font-weight:300;
+  color:var(--cream-dim);
+  max-width:60ch;
+}
+.verdict .fact b{color:var(--cream);font-weight:600}
+
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.q-anim{animation:rise .32s cubic-bezier(.2,.7,.3,1) both}
+@media (prefers-reduced-motion:reduce){
+  .q-anim,.verdict{animation:none}
+  .bunting{animation:none}
+}
+
+/* ---------- Knoepfe ---------- */
+.btn{
+  font-family:inherit;
+  font-size:19px;
+  font-weight:600;
+  color:#3A2606;
+  background:linear-gradient(180deg,var(--gilt-bright) 0%,var(--gilt) 100%);
+  border:none;
+  border-radius:999px;
+  padding:16px 32px;
+  min-height:62px;
+  cursor:pointer;
+  transition:filter .16s ease, transform .1s ease, opacity .18s ease;
+}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:scale(.978)}
+.btn:disabled{opacity:.3;cursor:default}
+.btn:disabled:active{transform:none}
+.btn-wide{width:100%}
+.btn-ghost{
+  background:none;
+  color:var(--cream-dim);
+  border:1.5px solid var(--line);
+  font-weight:500;
+  font-size:16px;
+  min-height:54px;
+  padding:12px 24px;
+}
+.btn-ghost:hover{background:#ffffff0f;color:var(--cream);filter:none}
+
+:where(button,[tabindex]):focus-visible{
+  outline:3px solid var(--gilt-bright);
+  outline-offset:3px;
+}
+
+.foot{display:flex;gap:11px;min-height:62px;align-items:stretch}
+.foot .btn{flex:1}
+
+/* ---------- Startbildschirm ---------- */
+.start-head{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+}
+.wheel{width:74px;height:74px;display:block}
 @media (prefers-reduced-motion:no-preference){
-  .wheel-spin{
-    transform-box:fill-box;
-    transform-origin:center;
-    animation:turn 150s linear infinite;
-  }
+  .wheel-spin{transform-box:fill-box;transform-origin:center;animation:turn 160s linear infinite}
 }
 @keyframes turn{to{transform:rotate(360deg)}}
 
 .eyebrow{
+  margin:0;
   font-size:12px;
   font-weight:600;
-  letter-spacing:.22em;
+  letter-spacing:.24em;
   text-transform:uppercase;
   color:var(--gilt);
 }
-.eyebrow-dim{color:var(--cream-faint)}
-
-.start-head{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.eyebrow-dim{color:var(--cream-faint);letter-spacing:.2em}
 
 .title{
   font-family:"Eczar",Georgia,"Times New Roman",serif;
   font-weight:700;
-  font-size:clamp(36px,6.4vw,55px);
-  line-height:1.02;
+  font-size:clamp(40px,6.6vw,66px);
+  line-height:.98;
   margin:0;
-  color:var(--cream);
   text-wrap:balance;
 }
 .title em{font-style:normal;color:var(--gilt-bright);display:block}
-
 .lede{
   margin:0;
-  max-width:52ch;
+  max-width:48ch;
   font-size:18px;
   font-weight:300;
   color:var(--cream-dim);
   text-wrap:balance;
 }
 
-/* Rundenlaenge: fuenf Kacheln, auf dem iPad nebeneinander,
-   am Telefon als Liste untereinander. */
-.lengths{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:9px;
-}
+.start-body{padding:22px 26px 24px;display:flex;flex-direction:column;gap:16px}
+
+.lengths{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .len{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:2px;
+  gap:1px;
   font-family:inherit;
   color:var(--cream);
-  background:var(--panel-hi);
+  background:linear-gradient(180deg,var(--panel-hi) 0%,var(--panel) 100%);
   border:1.5px solid var(--line);
   border-radius:var(--r-m);
-  padding:14px 8px 12px;
-  min-height:84px;
+  padding:14px 8px 13px;
+  min-height:88px;
   cursor:pointer;
-  transition:border-color .18s ease, background .18s ease, transform .1s ease;
+  transition:border-color .16s ease, box-shadow .16s ease, transform .1s ease;
 }
 .len:hover{border-color:var(--gilt)}
-.len:active{transform:scale(.98)}
+.len:active{transform:scale(.985)}
 .len .n{
   font-family:"Eczar",Georgia,serif;
   font-weight:700;
-  font-size:27px;
+  font-size:29px;
   line-height:1.05;
   color:var(--gilt);
   font-variant-numeric:tabular-nums;
-  transition:color .18s ease;
 }
 .len .lb{
   font-size:12.5px;
@@ -218,16 +469,15 @@ body{user-select:none;-webkit-user-select:none}
   color:var(--cream-faint);
   text-align:center;
   line-height:1.25;
-  transition:color .18s ease;
 }
 .len[aria-pressed="true"]{
-  background:var(--gilt);
-  border-color:var(--gilt);
+  background:linear-gradient(180deg,var(--gilt-bright) 0%,var(--gilt) 100%);
+  border-color:var(--gilt-bright);
+  box-shadow:0 0 0 1px var(--gilt-bright), 0 8px 20px -10px #F0C75A66;
 }
-.len[aria-pressed="true"] .n{color:var(--ground-deep)}
-.len[aria-pressed="true"] .lb{color:#5A2E06}
+.len[aria-pressed="true"] .n{color:#3A2606}
+.len[aria-pressed="true"] .lb{color:#6B4A08}
 
-/* Kapitel-Legende: erklaert die Farben der Fortschrittsleiste */
 .legend{
   list-style:none;
   margin:0;
@@ -239,290 +489,159 @@ body{user-select:none;-webkit-user-select:none}
   color:var(--cream-dim);
 }
 .legend li{display:flex;align-items:center;gap:7px}
-.legend .dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--c);
-  flex:none;
-}
+.legend .dot{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
 .legend .ct{color:var(--cream-faint);font-variant-numeric:tabular-nums}
 
-/* --- Buttons --- */
-.btn{
-  font-family:inherit;
-  font-size:19px;
-  font-weight:600;
-  color:var(--ground-deep);
-  background:var(--gilt);
-  border:none;
-  border-radius:999px;
-  padding:17px 34px;
-  min-height:60px;
-  cursor:pointer;
-  transition:transform .12s ease, background .18s ease, opacity .18s ease;
-}
-.btn:hover{background:var(--gilt-bright)}
-.btn:active{transform:scale(.975)}
-.btn:disabled{opacity:.35;cursor:default}
-.btn:disabled:active{transform:none}
-.btn-wide{width:100%}
-.btn-ghost{
-  background:transparent;
-  color:var(--cream-dim);
-  border:1px solid var(--line);
-  font-weight:500;
-  font-size:16px;
-  min-height:52px;
-  padding:13px 26px;
-}
-.btn-ghost:hover{background:#ffffff0d;color:var(--cream)}
-
-:where(button,[tabindex]):focus-visible{
-  outline:3px solid var(--gilt-bright);
-  outline-offset:3px;
-}
-
 .hint{
+  margin:0;
   font-size:13px;
+  line-height:1.5;
   color:var(--cream-faint);
   text-align:center;
-  margin:0;
-  max-width:46ch;
+  max-width:74ch;
   margin-inline:auto;
 }
 
-/* --- Kopfzeile im Quiz: Gebetsfahnen-Leiste --- */
-.hud{width:100%;display:flex;flex-direction:column;gap:10px}
-.rail{
-  display:flex;
-  gap:3px;
-  height:7px;
-}
-.seg{
-  flex:1;
-  border-radius:2px;
-  background:#ffffff1a;
-  transition:background .3s ease, box-shadow .3s ease;
-}
-.seg[data-state="hit"]{background:var(--c);box-shadow:0 0 9px -1px var(--c)}
-.seg[data-state="miss"]{background:var(--ash-deep);box-shadow:inset 0 0 0 1px var(--ash)}
-.seg[data-state="now"]{background:var(--cream);box-shadow:0 0 10px 0 #f6e9d266}
+/* ---------- Ergebnis ---------- */
+.result-body{padding:26px;display:grid;grid-template-columns:1fr;gap:22px;align-items:center}
 
-.hud-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  font-size:12.5px;
-  font-weight:600;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:var(--cream-faint);
+.score-block{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.ring{position:relative;width:196px;height:196px;flex:none}
+.ring svg{display:block;width:100%;height:100%}
+.ring .track{fill:none;stroke:#00000040;stroke-width:11}
+.ring .arc{
+  fill:none;
+  stroke:url(#giltgrad);
+  stroke-width:11;
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1);
 }
-.hud-row b{
-  color:var(--sc,var(--gilt));
-  font-weight:600;
-}
-.score{
-  color:var(--cream);
-  font-variant-numeric:tabular-nums;
-  letter-spacing:.1em;
-}
-.score i{font-style:normal;color:var(--cream-faint)}
-
-/* --- Frage --- */
-.q-anim{animation:rise .34s cubic-bezier(.2,.7,.3,1) both}
-@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){
-  .q-anim{animation:none}
-}
-
-.question{
-  font-family:"Eczar",Georgia,"Times New Roman",serif;
-  font-weight:600;
-  font-size:clamp(25px,3.6vw,33px);
-  line-height:1.2;
-  margin:0;
-  text-wrap:balance;
-}
-.multi-note{
-  margin:-8px 0 0;
-  font-size:14.5px;
-  font-weight:500;
-  color:var(--gilt);
-}
-
-.options{display:flex;flex-direction:column;gap:11px}
-.opt{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  width:100%;
-  text-align:left;
-  font-family:inherit;
-  font-size:19px;
-  font-weight:500;
-  line-height:1.35;
-  color:var(--cream);
-  background:var(--panel-hi);
-  border:1.5px solid var(--line);
-  border-radius:var(--r-m);
-  padding:16px 18px;
-  min-height:66px;
-  cursor:pointer;
-  transition:border-color .18s ease, background .18s ease, opacity .25s ease, transform .1s ease;
-}
-.opt:hover:not(:disabled){border-color:var(--gilt);background:#632b23}
-.opt:active:not(:disabled){transform:scale(.99)}
-.opt:disabled{cursor:default}
-
-.opt .key{
-  flex:none;
-  width:34px;height:34px;
-  border-radius:50%;
+.ring .spoke{stroke:var(--gilt);stroke-width:1.5;opacity:.24}
+.ring .hub{fill:none;stroke:var(--gilt);stroke-width:1.5;opacity:.4}
+.ring .num{
+  position:absolute;
+  inset:0;
   display:grid;
   place-items:center;
-  font-size:15px;
-  font-weight:700;
-  color:var(--gilt);
-  background:#00000033;
-  border:1.5px solid var(--line);
-  transition:inherit;
-}
-.opt .lbl{flex:1;min-width:0}
-
-.opt[data-pick="on"]{border-color:var(--gilt);background:#632b23}
-.opt[data-pick="on"] .key{background:var(--gilt);color:var(--ground-deep);border-color:var(--gilt)}
-
-.opt[data-mark]:not([data-mark="off"]) .key{font-size:18px;line-height:1}
-.opt[data-mark="right"]{border-color:var(--jade);background:#2A4A3B}
-.opt[data-mark="right"] .key{background:var(--jade);border-color:var(--jade);color:#0E2A1E}
-.opt[data-mark="shown"]{border-color:var(--jade-deep);background:#37231D}
-.opt[data-mark="shown"] .key{border-color:var(--jade);color:var(--jade)}
-.opt[data-mark="wrong"]{border-color:var(--ash);background:var(--ash-deep);color:var(--cream-dim)}
-.opt[data-mark="wrong"] .key{background:transparent;border-color:var(--ash);color:var(--ash)}
-.opt[data-mark="off"]{opacity:.42}
-
-/* --- Rueckmeldung --- */
-.verdict{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  padding:16px 18px;
-  border-radius:var(--r-m);
-  background:#00000030;
-  border-left:3px solid var(--v,var(--gilt));
-  animation:rise .3s cubic-bezier(.2,.7,.3,1) both;
-}
-@media (prefers-reduced-motion:reduce){.verdict{animation:none}}
-.verdict .head{
-  font-family:"Eczar",Georgia,serif;
-  font-weight:600;
-  font-size:20px;
-  color:var(--v,var(--gilt));
-}
-.verdict .fact{
-  margin:0;
-  font-size:16.5px;
-  font-weight:300;
-  color:var(--cream-dim);
-  max-width:62ch;
-}
-.verdict .fact b{color:var(--cream);font-weight:500}
-
-.foot{display:flex;gap:12px;align-items:center}
-.foot .btn{flex:1}
-
-/* --- Ergebnis --- */
-.gnh{
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  align-items:center;
-}
-.gnh .num{
+  align-content:center;
   font-family:"Eczar",Georgia,serif;
   font-weight:800;
-  font-size:clamp(66px,15vw,104px);
-  line-height:.95;
+  font-size:52px;
+  line-height:1;
   color:var(--gilt-bright);
   font-variant-numeric:tabular-nums;
 }
-.gnh .unit{font-size:.45em;color:var(--gilt);vertical-align:.35em;margin-left:.06em}
+.ring .num .pc{font-size:.5em;color:var(--gilt);margin-left:.04em;vertical-align:.42em}
 .rank{
   font-family:"Eczar",Georgia,serif;
   font-weight:600;
-  font-size:clamp(23px,4vw,30px);
+  font-size:clamp(22px,3vw,29px);
+  line-height:1.15;
   margin:0;
   text-wrap:balance;
 }
-.rank-sub{margin:0;font-size:17px;font-weight:300;color:var(--cream-dim);max-width:44ch;text-wrap:balance}
+.rank-sub{margin:0;font-size:16.5px;font-weight:300;color:var(--cream-dim);max-width:48ch;text-wrap:balance}
 
-.tally{display:flex;flex-direction:column;gap:12px;margin-top:4px}
-.tally-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:4px 12px;
-  align-items:baseline;
-}
-.tally-row .nm{font-size:15.5px;font-weight:500}
-.tally-row .val{
-  font-size:15.5px;
+.tally{display:flex;flex-direction:column;gap:13px;min-width:0}
+.tally-head{
+  margin:0 0 1px;
+  font-size:11.5px;
   font-weight:600;
-  color:var(--c);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--cream-faint);
+}
+.tally-row{display:grid;grid-template-columns:auto 1fr auto;gap:5px 10px;align-items:center}
+.tally-row .dot{width:9px;height:9px;border-radius:2px;background:var(--c)}
+.tally-row .nm{font-size:15px;font-weight:500;color:var(--cream);min-width:0}
+.tally-row .val{
+  font-size:15px;
+  font-weight:600;
+  color:var(--cream);
   font-variant-numeric:tabular-nums;
 }
 .tally-row .bar{
   grid-column:1/-1;
-  height:5px;
-  border-radius:3px;
-  background:#ffffff14;
+  height:7px;
+  border-radius:4px;
+  background:#00000040;
   overflow:hidden;
 }
 .tally-row .bar i{
   display:block;
   height:100%;
-  border-radius:3px;
+  border-radius:4px;
   background:var(--c);
   width:var(--w);
-  transition:width .7s cubic-bezier(.2,.7,.3,1);
+  transition:width .9s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion:reduce){
+  .tally-row .bar i,.ring .arc{transition:none}
 }
 
+/* ==================================================================
+   Querformat ab 880px: Frage links, Antworten rechts.
+   Auf dem 11"-Tablet (1194x834) passt damit alles ohne Scrollen.
+   ================================================================== */
+@media (min-width:880px){
+  .stage{grid-template-columns:1fr 1fr}
+  .pane{padding:28px 30px}
+  .pane-a{border-top:none;border-left:1px solid var(--line-soft)}
+  .result-body{grid-template-columns:auto 1fr;gap:34px;padding:30px 34px}
+  .start-body{padding:24px 30px 26px}
+}
+
+/* Flaches Querformat wie das 11"-Tablet: Kopf des Startschirms straffen */
+@media (min-width:880px) and (max-height:900px){
+  .wheel{width:62px;height:62px}
+  .title{font-size:clamp(38px,5.4vw,56px)}
+  .lede{font-size:17px}
+  .screen{gap:15px}
+  .start-body{gap:14px;padding:20px 30px 22px}
+}
+
+/* Schmale Geraete: Kacheln als Liste, engere Innenabstaende */
 @media (max-width:560px){
   .lengths{grid-template-columns:1fr}
   .len{
     flex-direction:row;
     justify-content:flex-start;
-    gap:14px;
+    gap:15px;
     min-height:62px;
-    padding:12px 16px;
+    padding:11px 16px;
   }
-  .len .n{width:44px;text-align:center;flex:none}
+  .len .n{width:46px;text-align:center;flex:none}
   .len .lb{text-align:left}
-}
-@media (max-width:520px){
-  .card-body{padding:20px 18px 22px}
-  .opt{font-size:17.5px;padding:14px 15px;min-height:60px}
-  .foot{flex-direction:column}
-  .foot .btn{width:100%}
+  .pane,.start-body,.result-body{padding:19px 17px}
+  .opt{font-size:17.5px;min-height:60px;padding:13px 15px;gap:12px}
+  .opt .key{width:32px;height:32px}
+  .foot{flex-direction:column;min-height:0}
+  .ring{width:164px;height:164px}
+  .ring .num{font-size:44px}
+  .horzhing{display:none}
 }
 </style>
 
 <div class="sky"></div>
-<svg class="range" viewBox="0 0 1200 230" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-  <polygon class="far" points="0,230 0,150 90,96 165,138 260,58 330,110 415,44 512,124 600,76 690,134 780,62 870,120 960,84 1050,142 1130,104 1200,148 1200,230"></polygon>
-  <polygon class="near" points="0,230 0,192 120,150 215,186 320,140 430,182 540,146 640,190 745,152 860,192 970,158 1080,196 1200,164 1200,230"></polygon>
+<svg class="ridges" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  <polygon class="r3" points="0,260 0,150 96,86 178,132 268,48 344,104 432,36 530,120 616,70 706,130 798,54 890,116 980,78 1072,138 1150,98 1200,142 1200,260"></polygon>
+  <polygon class="r2" points="0,260 0,190 118,138 214,180 322,126 436,176 548,134 648,186 754,142 872,188 984,148 1092,192 1200,152 1200,260"></polygon>
+  <polygon class="r1" points="0,260 0,228 140,196 262,224 388,188 512,222 640,192 768,226 896,196 1024,228 1140,200 1200,220 1200,260"></polygon>
 </svg>
 
 <div class="kiosk">
 
-  <!-- ===================== START ===================== -->
+  <!-- ======================= START ======================= -->
   <section class="screen" id="screen-start">
+    <div class="bunting-wrap">
+      <svg class="bunting" id="bunting-deco" aria-hidden="true" focusable="false"></svg>
+    </div>
+
     <div class="start-head">
       <svg class="wheel" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-        <g class="wheel-spin" fill="none" stroke="#E8B23C" stroke-width="2.4">
+        <g class="wheel-spin" fill="none" stroke="#F0C75A" stroke-width="2.4">
           <circle cx="50" cy="50" r="34"></circle>
-          <circle cx="50" cy="50" r="28.5" stroke-width="1.2"></circle>
+          <circle cx="50" cy="50" r="28.5" stroke-width="1.1"></circle>
           <circle cx="50" cy="50" r="8.5"></circle>
           <g stroke-width="2">
             <line x1="50" y1="21.5" x2="50" y2="78.5"></line>
@@ -537,18 +656,19 @@ body{user-select:none;-webkit-user-select:none}
       <p class="lede">Fragen über das Land des Donnerdrachens — über Schule, Berge, Könige, Klöster und sehr viel Chili.</p>
     </div>
 
-    <div class="card">
-      <svg class="kemar" viewBox="0 0 400 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <rect width="400" height="16" fill="#8C2F1F"></rect>
-        <g fill="#E8B23C">
-          <circle cx="20" cy="8" r="3"></circle><circle cx="60" cy="8" r="3"></circle>
-          <circle cx="100" cy="8" r="3"></circle><circle cx="140" cy="8" r="3"></circle>
-          <circle cx="180" cy="8" r="3"></circle><circle cx="220" cy="8" r="3"></circle>
-          <circle cx="260" cy="8" r="3"></circle><circle cx="300" cy="8" r="3"></circle>
-          <circle cx="340" cy="8" r="3"></circle><circle cx="380" cy="8" r="3"></circle>
+    <div class="frame">
+      <svg class="kemar" viewBox="0 0 400 15" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <rect width="400" height="15" fill="#93331F"></rect>
+        <rect width="400" height="2" fill="#00000033"></rect>
+        <g fill="#F0C75A">
+          <circle cx="20" cy="8" r="2.8"></circle><circle cx="60" cy="8" r="2.8"></circle>
+          <circle cx="100" cy="8" r="2.8"></circle><circle cx="140" cy="8" r="2.8"></circle>
+          <circle cx="180" cy="8" r="2.8"></circle><circle cx="220" cy="8" r="2.8"></circle>
+          <circle cx="260" cy="8" r="2.8"></circle><circle cx="300" cy="8" r="2.8"></circle>
+          <circle cx="340" cy="8" r="2.8"></circle><circle cx="380" cy="8" r="2.8"></circle>
         </g>
       </svg>
-      <div class="card-body">
+      <div class="start-body">
         <p class="eyebrow eyebrow-dim">Wie lang soll die Runde sein?</p>
         <div class="lengths" id="lengths" role="group" aria-label="Anzahl der Fragen"></div>
         <ul class="legend" id="chapters"></ul>
@@ -559,65 +679,110 @@ body{user-select:none;-webkit-user-select:none}
     <p class="hint">Die Fragen werden bei jeder Runde neu gezogen — quer durch alle vier Kapitel.<br>Für den Stand: Safari → Teilen → „Zum Home-Bildschirm“ startet die Seite im Vollbild.</p>
   </section>
 
-  <!-- ===================== QUIZ ===================== -->
+  <!-- ======================= QUIZ ======================= -->
   <section class="screen" id="screen-quiz" hidden>
-    <div class="hud">
-      <div class="rail" id="rail" role="img" aria-label="Fortschritt"></div>
-      <div class="hud-row">
-        <span id="hud-where">Frage 1 · <b>Schule</b></span>
+    <div class="topbar">
+      <div class="bunting-wrap">
+        <svg class="bunting" id="bunting" role="img" aria-label="Fortschritt"></svg>
+      </div>
+      <div class="hud">
+        <span id="hud-where">Frage 1 · Schule</span>
         <span class="score" id="hud-score">0 <i>richtig</i></span>
       </div>
     </div>
 
-    <div class="card" id="q-card">
-      <svg class="kemar" viewBox="0 0 400 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <rect width="400" height="16" fill="#8C2F1F"></rect>
-        <g fill="#E8B23C">
-          <circle cx="20" cy="8" r="3"></circle><circle cx="60" cy="8" r="3"></circle>
-          <circle cx="100" cy="8" r="3"></circle><circle cx="140" cy="8" r="3"></circle>
-          <circle cx="180" cy="8" r="3"></circle><circle cx="220" cy="8" r="3"></circle>
-          <circle cx="260" cy="8" r="3"></circle><circle cx="300" cy="8" r="3"></circle>
-          <circle cx="340" cy="8" r="3"></circle><circle cx="380" cy="8" r="3"></circle>
+    <div class="frame" id="q-card">
+      <svg class="kemar" viewBox="0 0 400 15" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <rect width="400" height="15" fill="#93331F"></rect>
+        <rect width="400" height="2" fill="#00000033"></rect>
+        <g fill="#F0C75A">
+          <circle cx="20" cy="8" r="2.8"></circle><circle cx="60" cy="8" r="2.8"></circle>
+          <circle cx="100" cy="8" r="2.8"></circle><circle cx="140" cy="8" r="2.8"></circle>
+          <circle cx="180" cy="8" r="2.8"></circle><circle cx="220" cy="8" r="2.8"></circle>
+          <circle cx="260" cy="8" r="2.8"></circle><circle cx="300" cy="8" r="2.8"></circle>
+          <circle cx="340" cy="8" r="2.8"></circle><circle cx="380" cy="8" r="2.8"></circle>
         </g>
       </svg>
-      <div class="card-body">
-        <h2 class="question" id="q-text">—</h2>
-        <p class="multi-note" id="q-note" hidden>Zwei Antworten sind richtig — wähle beide aus.</p>
-        <div class="options" id="q-options"></div>
-        <div id="q-verdict"></div>
-        <div class="foot" id="q-foot"></div>
+      <div class="stage">
+        <div class="pane pane-q">
+          <!-- Horzhing: der dreibogige Fensterrahmen eines Dzong -->
+          <svg class="horzhing" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <path d="M4,100 L4,54 Q4,31 22,31 Q37,31 39,48 Q41,20 50,7 Q59,20 61,48 Q63,31 78,31 Q96,31 96,54 L96,100"></path>
+          </svg>
+          <p class="chip" id="q-chip"><span class="dot"></span><span class="nm">—</span></p>
+          <h2 class="question" id="q-text">—</h2>
+          <p class="multi-note" id="q-note" hidden>Zwei Antworten sind richtig</p>
+          <div id="q-verdict"></div>
+        </div>
+        <div class="pane pane-a">
+          <div class="options" id="q-options"></div>
+          <div class="foot" id="q-foot"></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== ERGEBNIS ===================== -->
+  <!-- ======================= ERGEBNIS ======================= -->
   <section class="screen" id="screen-result" hidden>
-    <div class="card">
-      <svg class="kemar" viewBox="0 0 400 16" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <rect width="400" height="16" fill="#8C2F1F"></rect>
-        <g fill="#E8B23C">
-          <circle cx="20" cy="8" r="3"></circle><circle cx="60" cy="8" r="3"></circle>
-          <circle cx="100" cy="8" r="3"></circle><circle cx="140" cy="8" r="3"></circle>
-          <circle cx="180" cy="8" r="3"></circle><circle cx="220" cy="8" r="3"></circle>
-          <circle cx="260" cy="8" r="3"></circle><circle cx="300" cy="8" r="3"></circle>
-          <circle cx="340" cy="8" r="3"></circle><circle cx="380" cy="8" r="3"></circle>
+    <div class="bunting-wrap">
+      <svg class="bunting" id="bunting-result" aria-hidden="true" focusable="false"></svg>
+    </div>
+
+    <div class="frame">
+      <svg class="kemar" viewBox="0 0 400 15" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <rect width="400" height="15" fill="#93331F"></rect>
+        <rect width="400" height="2" fill="#00000033"></rect>
+        <g fill="#F0C75A">
+          <circle cx="20" cy="8" r="2.8"></circle><circle cx="60" cy="8" r="2.8"></circle>
+          <circle cx="100" cy="8" r="2.8"></circle><circle cx="140" cy="8" r="2.8"></circle>
+          <circle cx="180" cy="8" r="2.8"></circle><circle cx="220" cy="8" r="2.8"></circle>
+          <circle cx="260" cy="8" r="2.8"></circle><circle cx="300" cy="8" r="2.8"></circle>
+          <circle cx="340" cy="8" r="2.8"></circle><circle cx="380" cy="8" r="2.8"></circle>
         </g>
       </svg>
-      <div class="card-body">
-        <div class="gnh">
+      <div class="result-body">
+        <div class="score-block">
+          <div class="ring">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="giltgrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFDC86"></stop>
+                  <stop offset="100%" stop-color="#E0A82E"></stop>
+                </linearGradient>
+              </defs>
+              <circle class="track" cx="100" cy="100" r="84"></circle>
+              <circle class="arc" id="r-arc" cx="100" cy="100" r="84"
+                      transform="rotate(-90 100 100)"></circle>
+              <g class="spoke">
+                <line x1="100" y1="27" x2="100" y2="73"></line>
+                <line x1="100" y1="127" x2="100" y2="173"></line>
+                <line x1="27" y1="100" x2="73" y2="100"></line>
+                <line x1="127" y1="100" x2="173" y2="100"></line>
+                <line x1="48.4" y1="48.4" x2="81" y2="81"></line>
+                <line x1="119" y1="119" x2="151.6" y2="151.6"></line>
+                <line x1="151.6" y1="48.4" x2="119" y2="81"></line>
+                <line x1="81" y1="119" x2="48.4" y2="151.6"></line>
+              </g>
+              <circle class="hub" cx="100" cy="100" r="19"></circle>
+            </svg>
+            <div class="num" id="r-pct">0<span class="pc">%</span></div>
+          </div>
           <p class="eyebrow">Dein Bruttonationalglück</p>
-          <div class="num" id="r-pct">0<span class="unit">%</span></div>
+        </div>
+
+        <div>
           <p class="rank" id="r-rank">—</p>
           <p class="rank-sub" id="r-sub">—</p>
-        </div>
-        <div class="tally" id="r-tally"></div>
-        <div class="foot">
-          <button class="btn" id="btn-again" type="button">Noch einmal</button>
-          <button class="btn btn-ghost" id="btn-pick" type="button">Andere Länge wählen</button>
+          <div class="tally" id="r-tally" style="margin-top:18px"></div>
+          <div class="foot" style="margin-top:20px">
+            <button class="btn" id="btn-again" type="button">Noch einmal</button>
+            <button class="btn btn-ghost" id="btn-pick" type="button">Andere Länge</button>
+          </div>
         </div>
       </div>
     </div>
-    <p class="hint">Bhutan misst seinen Wohlstand seit 1972 nicht am Bruttoinlandsprodukt, sondern am <b>Bruttonationalglück</b>.</p>
+
+    <p class="hint">Bhutan misst seinen Wohlstand seit 1972 nicht am Bruttoinlandsprodukt, sondern am Bruttonationalglück.</p>
   </section>
 
 </div>
@@ -626,14 +791,21 @@ body{user-select:none;-webkit-user-select:none}
 (function(){
   "use strict";
 
-  /* ---------------- Inhalte ---------------- */
-  var SECTIONS = [
-    { name:"Schule",                    color:"#4FA37C" },  /* Gebetsfahne gruen  – Wasser */
-    { name:"Geografie",                 color:"#6BAAD4" },  /* Gebetsfahne blau   – Himmel */
-    { name:"Geschichte und Politik",    color:"#E4D9C6" },  /* Gebetsfahne weiss  – Luft */
-    { name:"Religion, Kultur und Essen",color:"#E8B23C" }   /* Gebetsfahne gelb   – Erde */
-  ];
 
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ---------------- Inhalte ---------------- */
+  /* Kapitelfarben = vier der fuenf Gebetsfahnen-Elemente. Geprueft mit
+     dem Palette-Validator gegen den dunklen Grund: Trennung bei
+     Farbfehlsichtigkeit ΔE 10.0, bei normalem Sehen 21.3. Die weisse
+     Fahne (Luft) ist bewusst fast neutral — jedes Kapitel traegt
+     zusaetzlich seinen Namen, Farbe allein muss nie reichen. */
+  var SECTIONS = [
+    { name:"Schule",                     color:"#3FCE8C" },  /* gruen  – Wasser */
+    { name:"Geografie",                  color:"#5B8FE0" },  /* blau   – Himmel */
+    { name:"Geschichte und Politik",     color:"#DCE2EC" },  /* weiss  – Luft */
+    { name:"Religion, Kultur und Essen", color:"#F5A81E" }   /* gelb   – Erde */
+  ];
   /* c:1 = richtig. Reihenfolge der Optionen wird beim Anzeigen gemischt. */
   var QUESTIONS = [
     { s:0, q:"Ist es Pflicht, traditionelle Kleidung in der Schule zu tragen?",
@@ -722,7 +894,7 @@ body{user-select:none;-webkit-user-select:none}
   var RANKS = [
     { min:.96, t:"Druk Gyalpo — Drachenkönig:in", s:"Makellos. Selbst in Thimphu würde man dich nach dem Weg fragen." },
     { min:.85, t:"Dzongpön — Burgherr:in",         s:"Beeindruckend. Du kennst Bhutan besser als die meisten Reiseführer." },
-    { min:.65, t:"Pilger:in auf dem Weg zum Tigernest", s:"Starker Aufstieg. Die letzten Stufen fehlen noch." },
+    { min:.65, t:"Pilger:in am Tigernest",         s:"Starker Aufstieg. Die letzten Stufen fehlen noch." },
     { min:.42, t:"Trekker:in auf dem Snowman Trail", s:"Gute Etappe. Der Weg durch den Himalaya ist lang." },
     { min:.20, t:"Gast im Paro-Tal",               s:"Du hast das Tal gesehen — die Berge warten noch." },
     { min:0,   t:"Neu in Druk Yul",                s:"Willkommen. Am Stand nebenan erfährst du mehr — dann noch einmal probieren." }
@@ -762,6 +934,100 @@ body{user-select:none;-webkit-user-select:none}
     window.scrollTo(0, 0);
   }
 
+  /* ==================================================================
+     Gebetsfahnen-Kette
+     Eine durchhaengende Schnur, eine Fahne je Frage, gefaerbt nach
+     Kapitel. Die Kette ersetzt den Fortschrittsbalken und zeigt
+     zugleich, aus welchen Kapiteln die Runde zusammengesetzt ist.
+
+     Geometrie: quadratische Bezierkurve von (0,top) ueber
+     (W/2, top+2*sag) nach (W,top). Fuer diese Kurve gilt x = u*W und
+     y = top + 4*sag*u*(1-u) — die Fahnen haengen also senkrecht zur
+     oertlichen Steigung, wie an einer echten Schnur.
+     ================================================================== */
+  function buildBunting(svg, colors){
+    var n = colors.length;
+    if(!n){ return; }
+
+    var pitch = Math.max(30, Math.min(64, Math.round(780 / n)));
+    var flagW = Math.min(Math.round(pitch * 0.62), 30);
+    var flagH = Math.round(flagW * 1.45);
+    var pad   = Math.round(pitch * 0.75);
+    var W     = pad * 2 + pitch * (n - 1);
+    var sag   = Math.max(4, Math.round(W * 0.022));
+    var top   = 8;
+    var H     = top + sag + flagH + 14;
+
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("width", W);
+    svg.setAttribute("height", H);
+    while(svg.firstChild){ svg.removeChild(svg.firstChild); }
+
+    var line = document.createElementNS(NS, "path");
+    line.setAttribute("class", "string");
+    line.setAttribute("d", "M0," + top + " Q" + (W / 2) + "," + (top + 2 * sag) + " " + W + "," + top);
+    svg.appendChild(line);
+
+    for(var i = 0; i < n; i++){
+      var x = pad + pitch * i;
+      var u = x / W;
+      var y = top + 4 * sag * u * (1 - u);
+      var slope = 4 * sag * (1 - 2 * u) / W;
+      /* leichte, aber feste Unregelmaessigkeit — echte Fahnen haengen krumm */
+      var wobble = ((i * 37) % 9) - 4;
+      var ang = Math.atan(slope) * 180 / Math.PI + wobble * 0.5;
+
+      var g = document.createElementNS(NS, "g");
+      g.setAttribute("transform", "translate(" + x + "," + y + ") rotate(" + ang.toFixed(2) + ")");
+
+      var knot = document.createElementNS(NS, "circle");
+      knot.setAttribute("r", "1.6");
+      knot.setAttribute("fill", "#C69A72");
+      g.appendChild(knot);
+
+      var f = document.createElementNS(NS, "rect");
+      f.setAttribute("class", "fl");
+      f.setAttribute("x", (-flagW / 2).toFixed(1));
+      f.setAttribute("y", "1.5");
+      f.setAttribute("width", flagW);
+      f.setAttribute("height", flagH);
+      f.setAttribute("rx", "2");
+      f.setAttribute("fill", colors[i]);
+      g.appendChild(f);
+
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  /* Faerbt die Fahnen nach Spielstand ein. */
+  function paintBunting(){
+    var flags = $("bunting").querySelectorAll(".fl"), i, f, col;
+    for(i = 0; i < flags.length; i++){
+      f = flags[i];
+      col = SECTIONS[QUESTIONS[order[i]].s].color;
+      f.removeAttribute("stroke");
+      f.removeAttribute("stroke-width");
+      if(i < results.length){
+        if(results[i]){                       /* richtig — Fahne in voller Farbe */
+          f.setAttribute("fill", col);
+          f.style.opacity = "1";
+        } else {                              /* falsch — verblasst */
+          f.setAttribute("fill", "#3A2A26");
+          f.style.opacity = "1";
+        }
+      } else if(i === idx){                   /* die laufende Frage */
+        f.setAttribute("fill", col);
+        f.style.opacity = "1";
+        f.setAttribute("stroke", "#FFDC86");
+        f.setAttribute("stroke-width", "2.5");
+      } else {                                /* noch offen */
+        f.setAttribute("fill", col);
+        f.style.opacity = ".46";
+      }
+    }
+  }
+
   /* ---------------- Startbildschirm ---------------- */
   function buildChapters(){
     var counts = [0,0,0,0], i;
@@ -769,10 +1035,8 @@ body{user-select:none;-webkit-user-select:none}
     var html = "";
     for(i = 0; i < SECTIONS.length; i++){
       html += '<li style="--c:' + SECTIONS[i].color + '">' +
-                '<span class="dot"></span>' +
-                SECTIONS[i].name +
-                ' <span class="ct">' + counts[i] + '</span>' +
-              '</li>';
+                '<span class="dot"></span>' + SECTIONS[i].name +
+                ' <span class="ct">' + counts[i] + '</span></li>';
     }
     $("chapters").innerHTML = html;
   }
@@ -812,7 +1076,7 @@ body{user-select:none;-webkit-user-select:none}
      bestuende eine kurze Runde leicht nur aus Essensfragen. Danach wird
      die Reihenfolge selbst noch einmal gemischt. */
   function drawOrder(n){
-    var pools = [], i, s;
+    var pools = [], i;
     for(i = 0; i < SECTIONS.length; i++){ pools.push([]); }
     for(i = 0; i < QUESTIONS.length; i++){ pools[QUESTIONS[i].s].push(i); }
     for(i = 0; i < pools.length; i++){ pools[i] = shuffle(pools[i]); }
@@ -830,26 +1094,6 @@ body{user-select:none;-webkit-user-select:none}
     return shuffle(picked);
   }
 
-  /* ---------------- Fortschrittsleiste ---------------- */
-  function buildRail(){
-    var html = "", i;
-    for(i = 0; i < order.length; i++){
-      html += '<span class="seg" style="--c:' + SECTIONS[QUESTIONS[order[i]].s].color + '"></span>';
-    }
-    $("rail").innerHTML = html;
-  }
-
-  function paintRail(){
-    var segs = $("rail").children, i, st;
-    for(i = 0; i < segs.length; i++){
-      if(i < results.length){ st = results[i] ? "hit" : "miss"; }
-      else if(i === idx){ st = "now"; }
-      else { st = ""; }
-      if(st){ segs[i].setAttribute("data-state", st); }
-      else { segs[i].removeAttribute("data-state"); }
-    }
-  }
-
   /* ---------------- Frage anzeigen ---------------- */
   function renderQuestion(){
     var q = QUESTIONS[order[idx]];
@@ -863,11 +1107,13 @@ body{user-select:none;-webkit-user-select:none}
     void card.offsetWidth;
     card.classList.add("q-anim");
 
-    $("hud-where").innerHTML = "Frage " + (idx + 1) + " von " + order.length +
-      ' · <b>' + sec.name + "</b>";
-    $("hud-where").style.setProperty("--sc", sec.color);
+    $("hud-where").textContent = "Frage " + (idx + 1) + " von " + order.length;
     $("hud-score").innerHTML = score() + " <i>richtig</i>";
-    paintRail();
+    paintBunting();
+
+    var chip = $("q-chip");
+    chip.style.setProperty("--c", sec.color);
+    chip.querySelector(".nm").textContent = sec.name;
 
     $("q-text").textContent = q.q;
     $("q-note").hidden = !q.multi;
@@ -880,8 +1126,7 @@ body{user-select:none;-webkit-user-select:none}
       b.className = "opt";
       b.id = "opt-" + i;
       b.setAttribute("data-i", String(i));
-      b.innerHTML = '<span class="key">' + String.fromCharCode(65 + i) + '</span>' +
-                    '<span class="lbl"></span>';
+      b.innerHTML = '<span class="key">' + String.fromCharCode(65 + i) + '</span><span class="lbl"></span>';
       b.querySelector(".lbl").textContent = shuffled[i].t;
       b.addEventListener("click", onPick);
       box.appendChild(b);
@@ -893,7 +1138,7 @@ body{user-select:none;-webkit-user-select:none}
     if(q.multi){
       var check = document.createElement("button");
       check.type = "button";
-      check.className = "btn";
+      check.className = "btn btn-wide";
       check.id = "btn-check";
       check.textContent = "Antwort prüfen";
       check.disabled = true;
@@ -916,9 +1161,13 @@ body{user-select:none;-webkit-user-select:none}
 
     if(q.multi){
       var at = picks.indexOf(i);
-      if(at > -1){ picks.splice(at, 1); } else { picks.push(i); }
-      ev.currentTarget.setAttribute("data-pick", at > -1 ? "off" : "on");
-      if(at > -1){ ev.currentTarget.removeAttribute("data-pick"); }
+      if(at > -1){
+        picks.splice(at, 1);
+        ev.currentTarget.removeAttribute("data-pick");
+      } else {
+        picks.push(i);
+        ev.currentTarget.setAttribute("data-pick", "on");
+      }
       var need = 0;
       for(var k = 0; k < q.a.length; k++){ if(q.a[k].c){ need++; } }
       $("btn-check").disabled = picks.length !== need;
@@ -934,8 +1183,7 @@ body{user-select:none;-webkit-user-select:none}
 
     var right = true, i, btn;
     for(i = 0; i < shuffled.length; i++){
-      var chosen = picks.indexOf(i) > -1;
-      if(chosen !== !!shuffled[i].c){ right = false; }
+      if((picks.indexOf(i) > -1) !== !!shuffled[i].c){ right = false; }
     }
     results.push(right);
 
@@ -943,26 +1191,26 @@ body{user-select:none;-webkit-user-select:none}
       btn = $("opt-" + i);
       btn.disabled = true;
       btn.removeAttribute("data-pick");
-      var isRight = !!shuffled[i].c;
-      var chosen2 = picks.indexOf(i) > -1;
       var key = btn.querySelector(".key");
-      if(isRight && chosen2){ btn.setAttribute("data-mark", "right"); key.textContent = "\u2713"; }
-      else if(isRight){ btn.setAttribute("data-mark", "shown"); key.textContent = "\u2713"; }
-      else if(chosen2){ btn.setAttribute("data-mark", "wrong"); key.textContent = "\u2715"; }
+      var isRight = !!shuffled[i].c;
+      var chosen = picks.indexOf(i) > -1;
+      if(isRight && chosen){ btn.setAttribute("data-mark", "right"); key.textContent = "✓"; }
+      else if(isRight){ btn.setAttribute("data-mark", "shown"); key.textContent = "✓"; }
+      else if(chosen){ btn.setAttribute("data-mark", "wrong"); key.textContent = "✕"; }
       else { btn.setAttribute("data-mark", "off"); }
     }
 
     var q = QUESTIONS[order[idx]];
     var v = document.createElement("div");
     v.className = "verdict";
-    v.style.setProperty("--v", right ? "#4FA37C" : "#F07A2B");
-    v.innerHTML = '<span class="head">' + (right ? "Richtig" : "Knapp daneben") + "</span>" +
+    v.style.setProperty("--v", right ? "#3FCE8C" : "#F5883A");
+    v.innerHTML = '<span class="head"><span class="ic">' + (right ? "✓" : "!") + "</span>" +
+                  (right ? "Richtig" : "Knapp daneben") + "</span>" +
                   '<p class="fact">' + q.f + "</p>";
-    $("q-verdict").innerHTML = "";
     $("q-verdict").appendChild(v);
 
     $("hud-score").innerHTML = score() + " <i>richtig</i>";
-    paintRail();
+    paintBunting();
 
     var foot = $("q-foot");
     foot.innerHTML = "";
@@ -985,7 +1233,20 @@ body{user-select:none;-webkit-user-select:none}
   function renderResult(){
     var total = order.length, hits = score();
     var pct = Math.round(hits / total * 100);
-    $("r-pct").innerHTML = pct + '<span class="unit">%</span>';
+
+    $("r-pct").innerHTML = pct + '<span class="pc">%</span>';
+
+    /* Punktestand als Ring um das Dharma-Rad */
+    var arc = $("r-arc");
+    var C = 2 * Math.PI * 84;
+    arc.setAttribute("stroke-dasharray", C.toFixed(1));
+    arc.setAttribute("stroke-dashoffset", C.toFixed(1));
+    /* erst im naechsten Frame setzen, damit der Ring sichtbar aufzieht */
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        arc.setAttribute("stroke-dashoffset", (C * (1 - hits / total)).toFixed(1));
+      });
+    });
 
     var rank = RANKS[RANKS.length - 1];
     for(var r = 0; r < RANKS.length; r++){
@@ -1000,17 +1261,25 @@ body{user-select:none;-webkit-user-select:none}
       tot[s]++;
       if(results[i]){ hit[s]++; }
     }
-    var html = "";
+    var html = '<p class="tally-head">Nach Kapitel</p>';
     for(i = 0; i < SECTIONS.length; i++){
-      if(!tot[i]){ continue; }   /* Kapitel kam in dieser Runde nicht vor */
+      if(!tot[i]){ continue; }        /* Kapitel kam in dieser Runde nicht vor */
       var w = Math.round(hit[i] / tot[i] * 100);
       html += '<div class="tally-row" style="--c:' + SECTIONS[i].color + ';--w:' + w + '%">' +
+                '<span class="dot"></span>' +
                 '<span class="nm">' + SECTIONS[i].name + "</span>" +
                 '<span class="val">' + hit[i] + " / " + tot[i] + "</span>" +
                 '<span class="bar"><i></i></span>' +
               "</div>";
     }
     $("r-tally").innerHTML = html;
+
+    /* Kette auf dem Ergebnisschirm: der gespielte Verlauf als Erinnerung */
+    var cols = [];
+    for(i = 0; i < order.length; i++){
+      cols.push(results[i] ? SECTIONS[QUESTIONS[order[i]].s].color : "#3A2A26");
+    }
+    buildBunting($("bunting-result"), cols);
 
     show("result");
   }
@@ -1020,26 +1289,25 @@ body{user-select:none;-webkit-user-select:none}
     order = drawOrder(roundLen);
     idx = 0;
     results = [];
-    buildRail();
+    var cols = [];
+    for(var i = 0; i < order.length; i++){
+      cols.push(SECTIONS[QUESTIONS[order[i]].s].color);
+    }
+    buildBunting($("bunting"), cols);
     show("quiz");
     renderQuestion();
   }
 
-  function toStart(){
-    show("start");
-  }
+  function toStart(){ show("start"); }
 
   $("btn-start").addEventListener("click", startQuiz);
   $("btn-again").addEventListener("click", startQuiz);
   $("btn-pick").addEventListener("click", toStart);
 
-  /* Tastatur (falls am Stand eine Tastatur haengt) */
+  /* Tastatur, falls am Stand eine angeschlossen ist */
   document.addEventListener("keydown", function(e){
     if(screens.quiz.hidden){
-      if(e.key === "Enter" || e.key === " "){
-        if(!screens.start.hidden){ startQuiz(); }
-        else if(!screens.result.hidden){ startQuiz(); }
-      }
+      if(e.key === "Enter" || e.key === " "){ startQuiz(); }
       return;
     }
     if(e.key === "Enter"){
@@ -1047,9 +1315,9 @@ body{user-select:none;-webkit-user-select:none}
       var c = $("btn-check"); if(c && !c.disabled){ c.click(); }
       return;
     }
-    var n2 = "ABCD".indexOf(String(e.key).toUpperCase());
-    if(n2 < 0 && /^[1-4]$/.test(e.key)){ n2 = Number(e.key) - 1; }
-    if(n2 > -1){ var o = $("opt-" + n2); if(o && !o.disabled){ o.click(); } }
+    var k = "ABCD".indexOf(String(e.key).toUpperCase());
+    if(k < 0 && /^[1-4]$/.test(e.key)){ k = Number(e.key) - 1; }
+    if(k > -1){ var o = $("opt-" + k); if(o && !o.disabled){ o.click(); } }
   });
 
   /* Kiosk: nach 90 s ohne Beruehrung zurueck zum Startbildschirm,
@@ -1064,13 +1332,20 @@ body{user-select:none;-webkit-user-select:none}
     document.addEventListener(ev, resetIdle, { passive:true });
   });
 
-  /* Doppeltipp-Zoom auf dem iPad unterbinden */
+  /* Doppeltipp-Zoom auf dem Tablet unterbinden */
   var lastTouch = 0;
   document.addEventListener("touchend", function(e){
     var now = Date.now();
     if(now - lastTouch < 320){ e.preventDefault(); }
     lastTouch = now;
   }, { passive:false });
+
+  /* Zierkette auf dem Startbildschirm: die vier Kapitelfarben im Wechsel */
+  (function(){
+    var cols = [], i;
+    for(i = 0; i < 12; i++){ cols.push(SECTIONS[i % SECTIONS.length].color); }
+    buildBunting($("bunting-deco"), cols);
+  })();
 
   buildChapters();
   buildLengths();
